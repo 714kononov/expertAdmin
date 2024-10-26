@@ -1,12 +1,8 @@
 import UIKit
 import SQLite3
 
-class MoreActualDetailID {
-    static let share = MoreDetailID()
-    var id: Int?
-}
 
-class ActualViewController: UIViewController {
+class ReadyViewController: UIViewController {
     
     var db: OpaquePointer?
     var orders: [(id: Int, date: String, typeExpertiz: String, userText: String)] = []
@@ -158,17 +154,18 @@ class ActualViewController: UIViewController {
     // Метод для обработки нажатия на кнопку "Подробнее"
     @objc func MoreDetailsTapped(_ sender: UIButton) {
         let selectedID = sender.tag
-        MoreActualDetailID.share.id = selectedID // Сохраняем ID выбранного заказа
+        MoreDetailID.share.id = selectedID // Сохраняем ID выбранного заказа
         
-        if let id = MoreActualDetailID.share.id {
+        if let id = MoreDetailID.share.id {
             print("ID Выбранной активной экспертизы : \(id)")
         } else {
             print("ID активной экспертизы не найден.")
         }
         
-        let storyboard = UIStoryboard(name: "ActualMoreDetailsViewController", bundle: nil)
-        let detailsVC = storyboard.instantiateViewController(withIdentifier: "ActualMoreDetailsViewController") as! ActualMoreDetailsViewController
+        let storyboard = UIStoryboard(name: "MoreDetailsViewController", bundle: nil)
+        let detailsVC = storyboard.instantiateViewController(withIdentifier: "MoreDetailsViewController") as! MoreDetailsViewController
         present(detailsVC, animated: true)
     }
 
 }
+

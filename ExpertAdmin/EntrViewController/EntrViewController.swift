@@ -1,6 +1,15 @@
 import UIKit
+import FirebaseAppCheck
+
+class OrderStatus
+{
+    static let shared = OrderStatus()
+    var status: Int?
+}
+
 
 class EntrViewController: UIViewController {
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -14,38 +23,55 @@ class EntrViewController: UIViewController {
         view.addSubview(mainLogo)
         
         // Кнопки
-        let firstButton = createButton(text: "Новые заказы")
-        let secondButton = createButton(text: "Активные заказы")
-        firstButton.isUserInteractionEnabled = true
-        secondButton.isUserInteractionEnabled = true
-        
-        let firstAction = UITapGestureRecognizer(target: self, action: #selector(firstTapped))
-        firstButton.addGestureRecognizer(firstAction)
-        
-        let secondAction = UITapGestureRecognizer(target: self, action: #selector(secondTapped))
-        secondButton.addGestureRecognizer(secondAction)
-        
-        view.addSubview(firstButton)
-        view.addSubview(secondButton)
-        
+        let newOrder = createButton(text: "Заказы")
+        let checkOrder = createButton(text: "Отчеты")
+        let experts = createButton(text: "Эксперты")
+        let myexpertiz = createButton(text: "Мои экспертизы")
+
+        // Add buttons to the view
+        view.addSubview(newOrder)
+        view.addSubview(myexpertiz)
+        view.addSubview(checkOrder)
+        view.addSubview(experts)
+
+        // Set up gestures
+        newOrder.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(firstTapped)))
+        checkOrder.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(MineOrderTapped)))
+        experts.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showExperts)))
+        myexpertiz.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(myExpertizTapped)))
+
+        // Activate constraints
         NSLayoutConstraint.activate([
             // Логотип
             mainLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            mainLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -100),
+            mainLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -150),
             mainLogo.widthAnchor.constraint(equalToConstant: 100),
             mainLogo.heightAnchor.constraint(equalToConstant: 100),
+
             // Кнопки
-            firstButton.topAnchor.constraint(equalTo: mainLogo.bottomAnchor, constant: 30),
-            firstButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            firstButton.widthAnchor.constraint(equalToConstant: 200),
-            firstButton.heightAnchor.constraint(equalToConstant: 50),
+            newOrder.topAnchor.constraint(equalTo: mainLogo.bottomAnchor, constant: 30),
+            newOrder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            newOrder.widthAnchor.constraint(equalToConstant: 200),
+            newOrder.heightAnchor.constraint(equalToConstant: 50),
             
-            secondButton.topAnchor.constraint(equalTo: firstButton.bottomAnchor, constant: 30),
-            secondButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            secondButton.widthAnchor.constraint(equalToConstant: 200),
-            secondButton.heightAnchor.constraint(equalToConstant: 50)
+            
+            checkOrder.topAnchor.constraint(equalTo: newOrder.bottomAnchor, constant: 30),
+            checkOrder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            checkOrder.widthAnchor.constraint(equalToConstant: 200),
+            checkOrder.heightAnchor.constraint(equalToConstant: 50),
+            
+            experts.topAnchor.constraint(equalTo: checkOrder.bottomAnchor, constant: 30),
+            experts.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            experts.widthAnchor.constraint(equalToConstant: 200),
+            experts.heightAnchor.constraint(equalToConstant: 50),
+            
+            myexpertiz.topAnchor.constraint(equalTo: experts.bottomAnchor, constant: 30),
+            myexpertiz.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            myexpertiz.widthAnchor.constraint(equalToConstant: 200),
+            myexpertiz.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
+
     
     // Метод создания кнопки
     func createButton(text: String) -> UIButton {
@@ -61,15 +87,51 @@ class EntrViewController: UIViewController {
     
     // Метод обработки нажатия на первую кнопку
     @objc func firstTapped() {
-        let storyboard = UIStoryboard(name: "NewViewController", bundle: nil)
-        let vsa = storyboard.instantiateViewController(withIdentifier: "NewViewController")as! NewViewController
+        OrderStatus.shared.status = 0
+        let storyboard = UIStoryboard(name: "NewExpertizViewController", bundle: nil)
+        let vsa = storyboard.instantiateViewController(withIdentifier: "NewExpertizViewController")as! NewExpertizViewController
         present(vsa,animated: true)
     }
     
     // Метод обработки нажатия на вторую кнопку
     @objc func secondTapped() {
+        OrderStatus.shared.status = 1
         let storyboard = UIStoryboard(name: "NewExpertizViewController", bundle: nil)
         let vsa = storyboard.instantiateViewController(withIdentifier: "NewExpertizViewController")as! NewExpertizViewController
         present(vsa,animated:true)
+    }
+    
+    @objc func MineOrderTapped()
+    {
+        let storyboard = UIStoryboard(name: "FilterViewController", bundle: nil)
+        let vsa = storyboard.instantiateViewController(withIdentifier: "FilterViewController") as! FilterViewController
+        present(vsa,animated: true)
+    }
+    @objc func CheckCancelOrder()
+    {
+        OrderStatus.shared.status = 3
+        let storyboard = UIStoryboard(name: "NewExpertizViewController", bundle: nil)
+        let vsa = storyboard.instantiateViewController(withIdentifier: "NewExpertizViewController")as! NewExpertizViewController
+        present(vsa,animated:true)
+    }
+    
+    @objc func showExperts()
+    {
+        let storyboard = UIStoryboard(name: "ExpertsViewController", bundle: nil)
+        let vsa = storyboard.instantiateViewController(withIdentifier: "ExpertsViewController") as! ExpertsViewController
+        present(vsa,animated: true)
+    }
+    @objc func checkReadyOrder()
+    {
+        OrderStatus.shared.status = 2
+        let storyboard = UIStoryboard(name: "NewExpertizViewController", bundle: nil)
+        let vsa = storyboard.instantiateViewController(withIdentifier: "NewExpertizViewController") as! NewExpertizViewController
+        present(vsa,animated: true)
+    }
+    @objc func myExpertizTapped()
+    {
+        let storyboard = UIStoryboard(name: "MyOrderViewController", bundle: nil)
+        let vsa = storyboard.instantiateViewController(withIdentifier: "MyOrderViewController") as! MyOrderViewController
+        present(vsa,animated: true)
     }
 }

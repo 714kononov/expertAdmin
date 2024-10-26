@@ -3,7 +3,7 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAppCheck
 
-class NewExpertizViewController: UIViewController {
+class MyOrderViewController: UIViewController {
     
     var orders: [(id: String, userName: String, expertName: String, date: String, typeExpertiz: Int, pay: Int, status: Int, userText: String?, price: Int, photo1: String?, photo2: String?, photo3: String?, photo4: String?)] = []
 
@@ -135,6 +135,7 @@ class NewExpertizViewController: UIViewController {
                 // Вместо addSnapshotListener используйте getDocuments для получения всех заказов
                 db.collection("users").document(userId).collection("orders")
                     .whereField("status", isEqualTo: status)
+                    .whereField("expertID", isEqualTo: Expert.shared.id)
                     .addSnapshotListener { (orderSnapshot, orderError) in
                         if let orderError = orderError {
                             print("Error fetching orders: \(orderError)")

@@ -1,14 +1,28 @@
 import UIKit
-import SQLite3
+import Firebase
+import FirebaseAuth
+import FirebaseAppCheck
+
 
 class RegViewController: UIViewController {
     
-    let usernameForm = UITextField()
+    class ExpertData {
+        static let shared = ExpertData()
+        
+        // Объявляем свойства как опциональные
+        var userEmail: UITextField = UITextField()
+        var userPassword: UITextField = UITextField()
+        var userPhoneForm: UITextField = UITextField()
+        var username: UITextField = UITextField()
+        
+
+        // Приватный инициализатор, чтобы предотвратить создание других экземпляров класса
+        private init() {}
+    }
+
     let H2 = UILabel()
-    let userpasswordForm = UITextField()
-    let userphoneForm = UITextField()
     let button1 = UIButton()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -33,6 +47,7 @@ class RegViewController: UIViewController {
         H2.font = UIFont.systemFont(ofSize: 14)
         H2.translatesAutoresizingMaskIntoConstraints = false
         
+        // Атрибутированный текст с оранжевым словом "все"
         let text = "Заполните все поля для регистрации"
         let attributedString = NSMutableAttributedString(string: text)
         
@@ -44,130 +59,157 @@ class RegViewController: UIViewController {
         H2.attributedText = attributedString
         view.addSubview(H2)
         
+        
+
         // Поля ввода
-        usernameForm.backgroundColor = .black
-        usernameForm.textColor = .white
-        usernameForm.borderStyle = .roundedRect
-        usernameForm.translatesAutoresizingMaskIntoConstraints = false
-        usernameForm.attributedPlaceholder = NSAttributedString(string: "Имя пользователя", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        view.addSubview(usernameForm)
+        ExpertData.shared.username.backgroundColor = .black
+        ExpertData.shared.username.textColor = .white
+        ExpertData.shared.username.borderStyle = .roundedRect
+        ExpertData.shared.username.translatesAutoresizingMaskIntoConstraints = false
+        ExpertData.shared.username.attributedPlaceholder = NSAttributedString(string: "Имя", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        view.addSubview(ExpertData.shared.username)
         
-        userpasswordForm.backgroundColor = .black
-        userpasswordForm.textColor = .white
-        userpasswordForm.borderStyle = .roundedRect
-        userpasswordForm.translatesAutoresizingMaskIntoConstraints = false
-        userpasswordForm.attributedPlaceholder = NSAttributedString(string: "Пароль", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        view.addSubview(userpasswordForm)
+        ExpertData.shared.userPhoneForm.backgroundColor = .black
+        ExpertData.shared.userPhoneForm.textColor = .white
+        ExpertData.shared.userPhoneForm.borderStyle = .roundedRect
+        ExpertData.shared.userPhoneForm.translatesAutoresizingMaskIntoConstraints = false
+        ExpertData.shared.userPhoneForm.attributedPlaceholder = NSAttributedString(string: "Номер телефона", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        view.addSubview(ExpertData.shared.userPhoneForm)
         
-        userphoneForm.backgroundColor = .black
-        userphoneForm.textColor = .white
-        userphoneForm.borderStyle = .roundedRect
-        userphoneForm.translatesAutoresizingMaskIntoConstraints = false
-        userphoneForm.attributedPlaceholder = NSAttributedString(string: "Номер телефона", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
-        view.addSubview(userphoneForm)
+        ExpertData.shared.userEmail.backgroundColor = .black
+        ExpertData.shared.userEmail.textColor = .white
+        ExpertData.shared.userEmail.borderStyle = .roundedRect
+        ExpertData.shared.userEmail.translatesAutoresizingMaskIntoConstraints = false
+        ExpertData.shared.userEmail.attributedPlaceholder = NSAttributedString(string: "Почта", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        view.addSubview(ExpertData.shared.userEmail)
+        
+        ExpertData.shared.userPassword.backgroundColor = .black
+        ExpertData.shared.userPassword.textColor = .white
+        ExpertData.shared.userPassword.borderStyle = .roundedRect
+        ExpertData.shared.userPassword.translatesAutoresizingMaskIntoConstraints = false
+        ExpertData.shared.userPassword.isSecureTextEntry = true
+        ExpertData.shared.userPassword.attributedPlaceholder = NSAttributedString(string: "Пароль", attributes: [NSAttributedString.Key.foregroundColor: UIColor.lightGray])
+        view.addSubview(ExpertData.shared.userPassword)
         
         // Кнопка регистрации
         button1.setTitle("Зарегистрироваться", for: .normal)
         button1.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        button1.backgroundColor = UIColor.orange
+        button1.backgroundColor = UIColor(red: 251/255, green: 109/255, blue: 16/255, alpha: 1.0)
         button1.setTitleColor(.white, for: .normal)
         button1.layer.cornerRadius = 10
         button1.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(button1)
-        
-        // Используем addTarget для кнопки
+        button1.isUserInteractionEnabled = true
         button1.addTarget(self, action: #selector(safedatabase), for: .touchUpInside)
-        
-        // Устанавливаем Auto Layout Constraints
+
+        // Auto Layout Constraints
         NSLayoutConstraint.activate([
             H1.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            H1.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -150),
+            H1.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -100),
+            
             H2.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             H2.topAnchor.constraint(equalTo: H1.bottomAnchor, constant: 10),
-            usernameForm.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            usernameForm.topAnchor.constraint(equalTo: H2.bottomAnchor, constant: 10),
-            usernameForm.widthAnchor.constraint(equalToConstant: 250),
-            usernameForm.heightAnchor.constraint(equalToConstant: 40),
-            userpasswordForm.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            userpasswordForm.topAnchor.constraint(equalTo: usernameForm.bottomAnchor, constant: 10),
-            userpasswordForm.widthAnchor.constraint(equalToConstant: 250),
-            userpasswordForm.heightAnchor.constraint(equalToConstant: 40),
-            userphoneForm.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            userphoneForm.topAnchor.constraint(equalTo: userpasswordForm.bottomAnchor, constant: 10),
-            userphoneForm.widthAnchor.constraint(equalToConstant: 250),
-            userphoneForm.heightAnchor.constraint(equalToConstant: 40),
+            
+            ExpertData.shared.username.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            ExpertData.shared.username.topAnchor.constraint(equalTo: H2.bottomAnchor,constant: 10),
+            ExpertData.shared.username.widthAnchor.constraint(equalToConstant: 250),
+            ExpertData.shared.username.heightAnchor.constraint(equalToConstant: 40),
+            
+            ExpertData.shared.userEmail.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            ExpertData.shared.userEmail.topAnchor.constraint(equalTo: ExpertData.shared.username.bottomAnchor, constant: 10),
+            ExpertData.shared.userEmail.widthAnchor.constraint(equalToConstant: 250),
+            ExpertData.shared.userEmail.heightAnchor.constraint(equalToConstant: 40),
+            
+            ExpertData.shared.userPhoneForm.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            ExpertData.shared.userPhoneForm.topAnchor.constraint(equalTo: ExpertData.shared.userEmail.bottomAnchor, constant: 10),
+            ExpertData.shared.userPhoneForm.widthAnchor.constraint(equalToConstant: 250),
+            ExpertData.shared.userPhoneForm.heightAnchor.constraint(equalToConstant: 40),
+            
+            
+            ExpertData.shared.userPassword.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            ExpertData.shared.userPassword.topAnchor.constraint(equalTo: ExpertData.shared.userPhoneForm.bottomAnchor, constant: 10),
+            ExpertData.shared.userPassword.widthAnchor.constraint(equalToConstant: 250),
+            ExpertData.shared.userPassword.heightAnchor.constraint(equalToConstant: 40),
+            
             button1.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            button1.topAnchor.constraint(equalTo: userphoneForm.bottomAnchor, constant: 10),
-            button1.widthAnchor.constraint(equalToConstant: 170),
+            button1.topAnchor.constraint(equalTo: ExpertData.shared.userPassword.bottomAnchor, constant: 10),
+            button1.widthAnchor.constraint(equalToConstant: 250),
             button1.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
     @objc func safedatabase() {
-        guard let usernameText = usernameForm.text, !usernameText.isEmpty,
-              let userpasswordText = userpasswordForm.text, !userpasswordText.isEmpty,
-              let userphoneText = userphoneForm.text, !userphoneText.isEmpty else {
-            let errorAlert = UIAlertController(title: "Ошибка", message: "Все поля должны быть заполнены!", preferredStyle: .alert)
-            let okAction = UIAlertAction(title: "ОК", style: .default)
-            errorAlert.addAction(okAction)
-            present(errorAlert, animated: true)
-            return
-        }
-        
-        let phoneSet = CharacterSet.decimalDigits.inverted
-        if userphoneText.rangeOfCharacter(from: phoneSet) != nil || userphoneText.count < 1 {
-            let errorAlert = UIAlertController(title: "Ошибка", message: "Телефон должен содержать только цифры и быть не менее 1 символа!", preferredStyle: .alert)
-            let okAction = UIAlertAction(title: "ОК", style: .default)
-            errorAlert.addAction(okAction)
-            present(errorAlert, animated: true)
-            return
-        }
-        
-        // Подключение к базе данных SQLite
-        var db: OpaquePointer?
-        let dbPath = "/Users/admin/Desktop/expert.sqlite"
-        
-        if sqlite3_open(dbPath, &db) != SQLITE_OK {
-            print("Ошибка открытия базы данных.")
-            return
-        }
-        
-        let createTableQuery = """
-        CREATE TABLE IF NOT EXISTS Experts(
-            Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            Name TEXT,
-            Access INT,
-            password TEXT,
-            phone TEXT
-        );
-        """
-        if sqlite3_exec(db, createTableQuery, nil, nil, nil) != SQLITE_OK {
-            print("Ошибка создания таблицы.")
-            sqlite3_close(db)
-            return
-        }
-        
-        let insertQuery = "INSERT INTO Experts (Name, Access, password, phone) VALUES (?, 0, ?, ?);"
-        var statement: OpaquePointer?
-        
-        if sqlite3_prepare_v2(db, insertQuery, -1, &statement, nil) == SQLITE_OK {
-            sqlite3_bind_text(statement, 1, (usernameText as NSString).utf8String, -1, nil)
-            sqlite3_bind_text(statement, 2, (userpasswordText as NSString).utf8String, -1, nil)
-            sqlite3_bind_text(statement, 3, (userphoneText as NSString).utf8String, -1, nil)
+            guard let emailText = ExpertData.shared.userEmail.text, !emailText.isEmpty,
+                  let passwordText = ExpertData.shared.userPassword.text,!passwordText.isEmpty,
+                  let phoneText = ExpertData.shared.userPhoneForm.text, !phoneText.isEmpty,
+                  let nameText = ExpertData.shared.username.text, !nameText.isEmpty else {
+                showAlert(title: "Ошибка", message: "Заполните все поля")
+                return
+            }
             
-            if sqlite3_step(statement) == SQLITE_DONE {
-                let successAlert = UIAlertController(title: "Успешно!", message: "Вы успешно зарегистрировались!", preferredStyle: .alert)
-                let okAction = UIAlertAction(title: "ОК", style: .default) { _ in
-                    self.dismiss(animated: true, completion: nil)
+            // Проверка валидности email
+            if !isValidEmail(emailText) {
+                showAlert(title: "Ошибка", message: "Неверный формат почты")
+                return
+            }
+            
+            // Проверка длины пароля
+            if passwordText.count < 6 {
+                showAlert(title: "Ошибка", message: "Пароль должен быть не менее 6 символов")
+                return
+            }
+            
+            print("Регистрация с почтой: \(emailText), паролем: \(passwordText)")
+            
+            // Регистрация пользователя в Firebase
+            Auth.auth().createUser(withEmail: emailText, password: passwordText) { authResult, error in
+                if let error = error as NSError? {
+                    if let authErrorCode = AuthErrorCode.Code(rawValue: error.code), authErrorCode == .emailAlreadyInUse {
+                        self.showAlert(title: "Ошибка", message: "Пользователь с такой почтой уже существует")
+                        print("Ошибка регистрации: Почта уже используется")
+                    } else {
+                        self.showAlert(title: "Ошибка", message: "Ошибка при регистрации")
+                        print("Ошибка регистрации: \(error.localizedDescription)")
+                    }
+                    return
                 }
-                successAlert.addAction(okAction)
-                present(successAlert, animated: true)
-            } else {
-                print("Ошибка вставки данных.")
+                
+                // После успешной регистрации добавляем данные в Firestore
+                guard let uid = authResult?.user.uid else { return } // Получаем uid пользователя
+                let userData: [String: Any] = [
+                    "email": emailText,
+                    "password": passwordText,
+                    "expertName": nameText,
+                    "Access": 0,
+                    "phone": phoneText,
+                    "uid": uid
+                ]
+                
+                Firestore.firestore().collection("experts").document(uid).setData(userData) { error in
+                    if let error = error {
+                        self.showAlert(title: "Ошибка", message: "Ошибка при сохранении данных: \(error.localizedDescription)")
+                    } else {
+                        self.showAlert(title: "Успешно!", message: "Вы успешно зарегистрировались!")
+                        print("Успешная регистрация пользователя с почтой \(emailText) и uid \(uid)")
+                        self.dismiss(animated: true)
+                    }
+                }
             }
         }
-        
-        sqlite3_finalize(statement)
-        sqlite3_close(db)
+    
+    // Проверка валидности email с использованием регулярного выражения
+    func isValidEmail(_ email: String) -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
+        return emailPredicate.evaluate(with: email)
     }
+    
+    // Функция для отображения UIAlertController
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let OKAction = UIAlertAction(title: "ОК", style: .default)
+        alert.addAction(OKAction)
+        present(alert, animated: true)
+    }
+    
 }
